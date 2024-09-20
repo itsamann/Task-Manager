@@ -2,8 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const authRoutes = require("./routes/authRoutes"); // Import auth routes
-const taskRoutes = require("./routes/taskRoutes"); // Import task routes
+const authRoutes = require("./routes/authRoutes");
+const taskRoutes = require("./routes/taskRoutes");
 
 dotenv.config(); // Load environment variables
 

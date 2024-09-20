@@ -7,8 +7,8 @@ export const registerUser = async (email, password, firstName, lastName) => {
     const { data } = await axios.post(`${API_URL}/auth/register`, {
       email,
       password,
-      firstName, // Include firstName
-      lastName, // Include lastName
+      firstName,
+      lastName,
     });
     return data;
   } catch (error) {
@@ -23,6 +23,14 @@ export const loginUser = async (email, password) => {
       email,
       password,
     });
+
+    const { token, firstName, lastName } = data;
+
+    // Store token and user details in local storage
+    localStorage.setItem("token", token);
+    localStorage.setItem("firstName", firstName);
+    localStorage.setItem("lastName", lastName);
+
     return data;
   } catch (error) {
     console.error("Error logging in", error);

@@ -1,28 +1,31 @@
-// components/TaskList.js
 import React, { useEffect, useState } from "react";
 import { fetchTasks, deleteTask, updateTask } from "../api/taskApi";
 import TaskForm from "./TaskForm";
+import { Container, Card, Button, Row, Col } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [taskToEdit, setTaskToEdit] = useState(null);
-  const token = localStorage.getItem("token"); // Retrieve the token
+  const token = localStorage.getItem("token");
+  const firstName = localStorage.getItem("firstName");
+  const lastName = localStorage.getItem("lastName");
 
   useEffect(() => {
     const getTasks = async () => {
       try {
-        const taskData = await fetchTasks(token); // Pass the token
+        const taskData = await fetchTasks(token);
         setTasks(taskData);
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }
     };
     getTasks();
-  }, [token]); // Add token to dependency array
+  }, [token]);
 
   const handleDelete = async (id) => {
     try {
-      await deleteTask(id, token); // Pass the token
+      await deleteTask(id, token);
       setTasks(tasks.filter((task) => task._id !== id));
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -35,7 +38,7 @@ const TaskList = () => {
         id,
         { completed: !completed },
         token
-      ); // Pass the token
+      );
       setTasks(tasks.map((task) => (task._id === id ? updatedTask : task)));
     } catch (error) {
       console.error("Error updating task:", error);
@@ -63,26 +66,84 @@ const TaskList = () => {
   };
 
   return (
-    <div>
-      <h1>Task List</h1>
-      <TaskForm
-        onTaskAdded={onTaskAdded}
-        taskToEdit={taskToEdit}
-        onTaskUpdated={onTaskUpdated}
-        clearTaskToEdit={clearTaskToEdit}
-      />
-      {tasks.map((task) => (
-        <div key={task._id}>
-          <h3>{task.title}</h3>
-          <p>{task.description}</p>
-          <button onClick={() => handleComplete(task._id, task.completed)}>
-            {task.completed ? "Mark Incomplete" : "Mark Complete"}
-          </button>
-          <button onClick={() => handleDelete(task._id)}>Delete</button>
-          <button onClick={() => editTask(task)}>Edit</button>
-        </div>
-      ))}
-    </div>
+    <Container fluid className="my-4">
+      {" "}
+      <Row className="mb-4">
+        <Col>
+          <h4>
+            Welcome, {firstName} {lastName}!
+          </h4>
+        </Col>
+      </Row>
+      <Row>
+        {/* Sidebar for Task Form */}
+        <Col md={3} className="bg-light p-4 shadow-sm my-4">
+          {" "}
+          <h4 className="mb-4">Add / Edit Task</h4>
+          <TaskForm
+            onTaskAdded={onTaskAdded}
+            taskToEdit={taskToEdit}
+            onTaskUpdated={onTaskUpdated}
+            clearTaskToEdit={clearTaskToEdit}
+          />
+        </Col>
+
+        {/* Main Area for Task List */}
+        <Col md={9} className="p-4">
+          <h4 className="text-center mb-4">Task List</h4>
+          <Row>
+            {tasks.length === 0 ? (
+              <p className="text-center w-100">No tasks available</p>
+            ) : (
+              tasks.map((task) => (
+                <Col md={6} lg={4} key={task._id} className="mb-4">
+                  {" "}
+                  <Card className="shadow-sm">
+                    <Card.Body>
+                      <Card.Title>{task.title}</Card.Title>
+                      <Card.Text>
+                        {task.description || "No description available."}
+                      </Card.Text>
+                      <Card.Text>
+                        <strong>Priority:</strong> {task.priority}
+                      </Card.Text>
+                      <Card.Text>
+                        <strong>Due Date:</strong>{" "}
+                        {task.dueDate
+                          ? new Date(task.dueDate).toLocaleDateString()
+                          : "No due date"}
+                      </Card.Text>
+                      <div className="d-flex justify-content-between">
+                        <Button
+                          variant={task.completed ? "secondary" : "success"}
+                          onClick={() =>
+                            handleComplete(task._id, task.completed)
+                          }
+                        >
+                          {task.completed ? "Mark Incomplete" : "Mark Complete"}
+                        </Button>
+                        <Button
+                          variant="primary"
+                          onClick={() => editTask(task)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="danger"
+                          onClick={() => handleDelete(task._id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))
+            )}
+          </Row>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
